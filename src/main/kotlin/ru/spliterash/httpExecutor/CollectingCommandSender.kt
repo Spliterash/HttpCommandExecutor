@@ -74,7 +74,7 @@ class CollectingCommandSender : CommandSender {
     override fun getServer() = Bukkit.getServer()
 
 
-    override fun getName() = "SuperDumbCommandSender"
+    override fun getName() = "HttpCommandSender"
 
     override fun spigot(): CommandSender.Spigot {
         return CommandSender.Spigot()
