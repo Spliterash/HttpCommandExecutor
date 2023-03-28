@@ -35,7 +35,8 @@ class HttpCommandExecutor : JavaPlugin() {
             val command = exchange.requestBody.readAllBytes().decodeToString()
 
             exchange.responseHeaders.add("Content-Type", "application/text")
-            val sender = CollectingCommandSender()
+            val executeMode = exchange.requestHeaders.getFirst("mode")
+            val sender = if (executeMode == "console") Bukkit.getConsoleSender() else CollectingCommandSender()
             val future = Bukkit.getScheduler().callSyncMethod(this@HttpCommandExecutor) {
                 try {
                     Bukkit.dispatchCommand(sender, command)
@@ -45,7 +46,12 @@ class HttpCommandExecutor : JavaPlugin() {
                 }
             }
             val start = future.get()
-            val response = start + sender.response()
+            val commandResponse = if (sender is CollectingCommandSender)
+                sender.response()
+            else
+                "Console mode, no response"
+
+            val response = start + commandResponse
             val byteResponse = response.encodeToByteArray()
             exchange.sendResponseHeaders(200, byteResponse.size.toLong())
 
